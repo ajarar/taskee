@@ -3,6 +3,7 @@ import { TODO_API } from '../API';
 import { Todo } from '../interfaces';
 import TodoItem from './TodoItem';
 import Pagenation from './Pagenation';
+import LimitRecords from './LimitRecords';
 import { fillClass } from '../Theming/colors';
 interface Props {
 	todos: Todo[];
@@ -13,7 +14,7 @@ const TodoList: FC<Props> = ({ todos, setTodos }) => {
 	const [page, setPage] = useState<number>(1);
 	const [limit, setLimit] = useState<number>(5);
 	const [loading, setLoading] = useState<boolean>(false);
-	const pagesCount: number = itemsLength / limit;
+	const pagesCount: number = Math.ceil(itemsLength / limit);
 	useEffect(() => {
 		const getTodo = async () => {
 			const respones = await fetch(
@@ -28,8 +29,13 @@ const TodoList: FC<Props> = ({ todos, setTodos }) => {
 		setLoading(true);
 		getTodo();
 	}, [setTodos, page, limit]);
+	const setLimitWithPage = (limitValue: number): void => {
+		setLimit(limitValue);
+		setPage(1);
+	};
 	return (
 		<>
+			<LimitRecords limit={limit} setLimitWithPage={setLimitWithPage} />
 			{loading ? (
 				<div
 					role='status'
@@ -55,7 +61,7 @@ const TodoList: FC<Props> = ({ todos, setTodos }) => {
 				</div>
 			) : (
 				<ul>
-					{todos.map((todo) => (
+					{todos.map((todo, index) => (
 						<TodoItem title={todo.title} key={todo.id} />
 					))}
 				</ul>
